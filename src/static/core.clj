@@ -1,7 +1,9 @@
 (ns static.core
   (:gen-class)
   (:require [watchtower.core :as watcher])
-  (:require [clojure.string :as str])
+  (:require
+   [clojure.string :as str]
+   [static.config :as config])
   (:use [clojure.tools logging cli]
         [clojure.java.browse]
         [ring.adapter.jetty]
@@ -53,9 +55,9 @@
   [file]
   (let [name (FilenameUtils/getBaseName (str file))
         url (str (apply str (interleave (repeat \/) (.split name "-" 4))) "/")]
-    (if (empty? (:post-out-subdir (config)))
+    (if (empty? (:post-out-subdir (config/config)))
       url
-      (str "/" (:post-out-subdir (config)) url))))
+      (str "/" (:post-out-subdir (config/config)) url))))
 
 (defn site-url [f & [ext]]
   (-> (str f)
@@ -74,7 +76,7 @@
   (let [[m c] page
         template (if (:template m)
                    (:template m) 
-                   (:default-template (static.config/config)))
+                   (:default-template (config/config)))
         [type template-string] (if (= template :none)
                                  [:none c]
                                  (read-template template))]
